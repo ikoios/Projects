@@ -15,48 +15,22 @@ class ContactList
     #[ORM\Column]
     private ?int $id = null;
 
-    /**
-     * @var Collection<int, Users>
-     */
-    #[ORM\OneToMany(targetEntity: Users::class, mappedBy: 'contactList')]
-    private Collection $user;
-
-    public function __construct()
-    {
-        $this->user = new ArrayCollection();
-    }
+    #[ORM\ManyToOne(inversedBy: 'contactLists')]
+    private ?Users $user = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return Collection<int, Users>
-     */
-    public function getUser(): Collection
+    public function getUser(): ?Users
     {
         return $this->user;
     }
 
-    public function addUser(Users $user): static
+    public function setUser(?Users $user): static
     {
-        if (!$this->user->contains($user)) {
-            $this->user->add($user);
-            $user->setContactList($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(Users $user): static
-    {
-        if ($this->user->removeElement($user)) {
-            // set the owning side to null (unless already changed)
-            if ($user->getContactList() === $this) {
-                $user->setContactList(null);
-            }
-        }
+        $this->user = $user;
 
         return $this;
     }

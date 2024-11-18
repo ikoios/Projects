@@ -21,16 +21,8 @@ class Groups
     #[ORM\Column(nullable: true)]
     private ?int $members_number = null;
 
-    /**
-     * @var Collection<int, Users>
-     */
-    #[ORM\OneToMany(targetEntity: Users::class, mappedBy: 'groups')]
-    private Collection $user;
-
-    public function __construct()
-    {
-        $this->user = new ArrayCollection();
-    }
+    #[ORM\ManyToOne(inversedBy: 'groups')]
+    private ?Users $user = null;
 
     public function getId(): ?int
     {
@@ -61,32 +53,14 @@ class Groups
         return $this;
     }
 
-    /**
-     * @return Collection<int, Users>
-     */
-    public function getUser(): Collection
+    public function getUser(): ?Users
     {
         return $this->user;
     }
 
-    public function addUser(Users $user): static
+    public function setUser(?Users $user): static
     {
-        if (!$this->user->contains($user)) {
-            $this->user->add($user);
-            $user->setGroups($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(Users $user): static
-    {
-        if ($this->user->removeElement($user)) {
-            // set the owning side to null (unless already changed)
-            if ($user->getGroups() === $this) {
-                $user->setGroups(null);
-            }
-        }
+        $this->user = $user;
 
         return $this;
     }

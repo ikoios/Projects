@@ -34,34 +34,38 @@ class Users
     private ?string $password = null;
 
     /**
-     * @var Collection<int, Address>
-     */
-    #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'user')]
-    private Collection $address;
-
-    /**
      * @var Collection<int, Tasks>
      */
-    #[ORM\ManyToMany(targetEntity: Tasks::class, inversedBy: 'user')]
-    private Collection $task;
+    #[ORM\ManyToMany(targetEntity: Tasks::class, mappedBy: 'users')]
+    private Collection $tasks;
+
+    #[ORM\ManyToOne(inversedBy: 'users')]
+    private ?Address $address = null;
 
     /**
      * @var Collection<int, Roles>
      */
     #[ORM\ManyToMany(targetEntity: Roles::class, mappedBy: 'user')]
-    private Collection $role;
+    private Collection $roles;
 
-    #[ORM\ManyToOne(inversedBy: 'user')]
-    private ?ContactList $contactList = null;
+    /**
+     * @var Collection<int, ContactList>
+     */
+    #[ORM\OneToMany(targetEntity: ContactList::class, mappedBy: 'user')]
+    private Collection $contactLists;
 
-    #[ORM\ManyToOne(inversedBy: 'user')]
-    private ?Groups $groups = null;
+    /**
+     * @var Collection<int, Groups>
+     */
+    #[ORM\OneToMany(targetEntity: Groups::class, mappedBy: 'user')]
+    private Collection $groups;
 
     public function __construct()
     {
-        $this->address = new ArrayCollection();
-        $this->task = new ArrayCollection();
-        $this->role = new ArrayCollection();
+        $this->tasks = new ArrayCollection();
+        $this->roles = new ArrayCollection();
+        $this->contactLists = new ArrayCollection();
+        $this->groups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -142,47 +146,18 @@ class Users
     }
 
     /**
-     * @return Collection<int, Address>
-     */
-    public function getAddress(): Collection
-    {
-        return $this->address;
-    }
-
-    public function addAddress(Address $address): static
-    {
-        if (!$this->address->contains($address)) {
-            $this->address->add($address);
-            $address->setUsers($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAddress(Address $address): static
-    {
-        if ($this->address->removeElement($address)) {
-            // set the owning side to null (unless already changed)
-            if ($address->getUsers() === $this) {
-                $address->setUsers(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection<int, Tasks>
      */
-    public function getTask(): Collection
+    public function getTasks(): Collection
     {
-        return $this->task;
+        return $this->tasks;
     }
 
     public function addTask(Tasks $task): static
     {
-        if (!$this->task->contains($task)) {
-            $this->task->add($task);
+        if (!$this->tasks->contains($task)) {
+            $this->tasks->add($task);
+            $task->addUser($this);
         }
 
         return $this;
@@ -190,7 +165,21 @@ class Users
 
     public function removeTask(Tasks $task): static
     {
-        $this->task->removeElement($task);
+        if ($this->tasks->removeElement($task)) {
+            $task->removeUser($this);
+        }
+
+        return $this;
+    }
+
+    public function getAddress(): ?Address
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?Address $address): static
+    {
+        $this->address = $address;
 
         return $this;
     }
@@ -200,13 +189,13 @@ class Users
      */
     public function getRoles(): Collection
     {
-        return $this->role;
+        return $this->roles;
     }
 
     public function addRole(Roles $role): static
     {
-        if (!$this->role->contains($role)) {
-            $this->role->add($role);
+        if (!$this->roles->contains($role)) {
+            $this->roles->add($role);
             $role->addUser($this);
         }
 
@@ -215,33 +204,69 @@ class Users
 
     public function removeRole(Roles $role): static
     {
-        if ($this->role->removeElement($role)) {
+        if ($this->roles->removeElement($role)) {
             $role->removeUser($this);
         }
 
         return $this;
     }
 
-    public function getContactList(): ?ContactList
+    /**
+     * @return Collection<int, ContactList>
+     */
+    public function getContactLists(): Collection
     {
-        return $this->contactList;
+        return $this->contactLists;
     }
 
-    public function setContactList(?ContactList $contactList): static
+    public function addContactList(ContactList $contactList): static
     {
-        $this->contactList = $contactList;
+        if (!$this->contactLists->contains($contactList)) {
+            $this->contactLists->add($contactList);
+            $contactList->setUser($this);
+        }
 
         return $this;
     }
 
-    public function getGroups(): ?Groups
+    public function removeContactList(ContactList $contactList): static
+    {
+        if ($this->contactLists->removeElement($contactList)) {
+            // set the owning side to null (unless already changed)
+            if ($contactList->getUser() === $this) {
+                $contactList->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Groups>
+     */
+    public function getGroups(): Collection
     {
         return $this->groups;
     }
 
-    public function setGroups(?Groups $groups): static
+    public function addGroup(Groups $group): static
     {
-        $this->groups = $groups;
+        if (!$this->groups->contains($group)) {
+            $this->groups->add($group);
+            $group->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroup(Groups $group): static
+    {
+        if ($this->groups->removeElement($group)) {
+            // set the owning side to null (unless already changed)
+            if ($group->getUser() === $this) {
+                $group->setUser(null);
+            }
+        }
 
         return $this;
     }

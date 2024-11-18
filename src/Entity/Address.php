@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\AddressRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
@@ -29,11 +31,23 @@ class Address
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $country = null;
 
-    #[ORM\ManyToOne(inversedBy: 'address')]
-    private ?Tasks $tasks = null;
+    /**
+     * @var Collection<int, Tasks>
+     */
+    #[ORM\OneToMany(targetEntity: Tasks::class, mappedBy: 'address')]
+    private Collection $tasks;
 
-    #[ORM\ManyToOne(inversedBy: 'address')]
-    private ?Users $users = null;
+    /**
+     * @var Collection<int, Users>
+     */
+    #[ORM\OneToMany(targetEntity: Users::class, mappedBy: 'address')]
+    private Collection $users;
+
+    public function __construct()
+    {
+        $this->tasks = new ArrayCollection();
+        $this->users = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -100,26 +114,62 @@ class Address
         return $this;
     }
 
-    public function getTasks(): ?Tasks
+    /**
+     * @return Collection<int, Tasks>
+     */
+    public function getTasks(): Collection
     {
         return $this->tasks;
     }
 
-    public function setTasks(?Tasks $tasks): static
+    public function addTask(Tasks $task): static
     {
-        $this->tasks = $tasks;
+        if (!$this->tasks->contains($task)) {
+            $this->tasks->add($task);
+            $task->setAddress($this);
+        }
 
         return $this;
     }
 
-    public function getUsers(): ?Users
+    public function removeTask(Tasks $task): static
+    {
+        if ($this->tasks->removeElement($task)) {
+            // set the owning side to null (unless already changed)
+            if ($task->getAddress() === $this) {
+                $task->setAddress(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Users>
+     */
+    public function getUsers(): Collection
     {
         return $this->users;
     }
 
-    public function setUsers(?Users $users): static
+    public function addUser(Users $user): static
     {
-        $this->users = $users;
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+            $user->setAddress($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(Users $user): static
+    {
+        if ($this->users->removeElement($user)) {
+            // set the owning side to null (unless already changed)
+            if ($user->getAddress() === $this) {
+                $user->setAddress(null);
+            }
+        }
 
         return $this;
     }

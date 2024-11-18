@@ -31,21 +31,17 @@ class Tasks
     #[ORM\Column(nullable: true)]
     private ?bool $state = null;
 
-    /**
-     * @var Collection<int, Address>
-     */
-    #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'task')]
-    private Collection $address;
+    #[ORM\ManyToOne(inversedBy: 'tasks')]
+    private ?Address $address = null;
 
     /**
      * @var Collection<int, Users>
      */
-    #[ORM\ManyToMany(targetEntity: Users::class, mappedBy: 'task')]
+    #[ORM\ManyToMany(targetEntity: Users::class, inversedBy: 'tasks')]
     private Collection $users;
 
     public function __construct()
     {
-        $this->address = new ArrayCollection();
         $this->users = new ArrayCollection();
     }
 
@@ -114,32 +110,14 @@ class Tasks
         return $this;
     }
 
-    /**
-     * @return Collection<int, Address>
-     */
-    public function getAddress(): Collection
+    public function getAddress(): ?Address
     {
         return $this->address;
     }
 
-    public function addAddress(Address $address): static
+    public function setAddress(?Address $address): static
     {
-        if (!$this->address->contains($address)) {
-            $this->address->add($address);
-            $address->setTasks($this);
-        }
-
-        return $this;
-    }
-
-    public function removeIdAddress(Address $address): static
-    {
-        if ($this->address->removeElement($address)) {
-            // set the owning side to null (unless already changed)
-            if ($address->getTasks() === $this) {
-                $address->setTasks(null);
-            }
-        }
+        $this->address = $address;
 
         return $this;
     }
@@ -156,7 +134,6 @@ class Tasks
     {
         if (!$this->users->contains($user)) {
             $this->users->add($user);
-            $user->addTask($this);
         }
 
         return $this;
@@ -164,9 +141,7 @@ class Tasks
 
     public function removeUser(Users $user): static
     {
-        if ($this->users->removeElement($user)) {
-            $user->removeTask($this);
-        }
+        $this->users->removeElement($user);
 
         return $this;
     }
