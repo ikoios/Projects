@@ -6,6 +6,7 @@ use App\Repository\UsersRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
 class Users
@@ -28,6 +29,7 @@ class Users
     private ?string $mail = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['task_read','task_users'])]
     private ?string $identifier = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -55,17 +57,17 @@ class Users
     private Collection $contactLists;
 
     /**
-     * @var Collection<int, Groups>
+     * @var Collection<int, Team>
      */
-    #[ORM\OneToMany(targetEntity: Groups::class, mappedBy: 'user')]
-    private Collection $groups;
+    #[ORM\ManyToMany(targetEntity: Team::class, mappedBy: 'users')]
+    private Collection $team;
 
     public function __construct()
     {
         $this->tasks = new ArrayCollection();
         $this->roles = new ArrayCollection();
         $this->contactLists = new ArrayCollection();
-        $this->groups = new ArrayCollection();
+        $this->team = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -242,30 +244,27 @@ class Users
     }
 
     /**
-     * @return Collection<int, Groups>
+     * @return Collection<int, Team>
      */
-    public function getGroups(): Collection
+    public function getTeam(): Collection
     {
-        return $this->groups;
+        return $this->team;
     }
 
-    public function addGroup(Groups $group): static
+    public function addTeam(Team $team): static
     {
-        if (!$this->groups->contains($group)) {
-            $this->groups->add($group);
-            $group->setUser($this);
+        if (!$this->team->contains($team)) {
+            $this->team->add($team);
+            $team->addUser($this);
         }
 
         return $this;
     }
 
-    public function removeGroup(Groups $group): static
+    public function removeTeam(Team $team): static
     {
-        if ($this->groups->removeElement($group)) {
-            // set the owning side to null (unless already changed)
-            if ($group->getUser() === $this) {
-                $group->setUser(null);
-            }
+        if ($this->team->removeElement($team)) {
+            $team->removeUser($this);
         }
 
         return $this;

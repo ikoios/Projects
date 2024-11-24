@@ -6,6 +6,7 @@ use App\Repository\AddressRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
 
@@ -16,19 +17,24 @@ class Address
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(nullable: true)]
+    #[Groups(['task_read'])]
+    private ?int $way_number = null;
+
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['task_read'])]
     private ?string $address_label = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['task_read'])]
     private ?int $postal_code = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['task_read'])]
     private ?string $city = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $town = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['task_read'])]
     private ?string $country = null;
 
     /**
@@ -52,6 +58,18 @@ class Address
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getWayNumber(): ?int
+    {
+        return $this->way_number;
+    }
+
+    public function setWayNumber(?int $way_number): static
+    {
+        $this->way_number = $way_number;
+
+        return $this;
     }
 
     public function getAddressLabel(): ?string
@@ -86,18 +104,6 @@ class Address
     public function setCity(?string $city): static
     {
         $this->city = $city;
-
-        return $this;
-    }
-
-    public function getTown(): ?string
-    {
-        return $this->town;
-    }
-
-    public function setTown(?string $town): static
-    {
-        $this->town = $town;
 
         return $this;
     }

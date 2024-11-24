@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: TasksRepository::class)]
 class Tasks
@@ -14,31 +15,39 @@ class Tasks
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['task_read', 'task_users'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['task_read'])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['task_read'])]
     private ?\DateTimeInterface $start_date = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['task_read'])]
     private ?\DateTimeInterface $end_date = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $location = null;
-
     #[ORM\Column(nullable: true)]
+    #[Groups(['task_read'])]
     private ?bool $state = null;
 
     #[ORM\ManyToOne(inversedBy: 'tasks')]
+    #[Groups(['task_read'])]
     private ?Address $address = null;
 
     /**
      * @var Collection<int, Users>
      */
     #[ORM\ManyToMany(targetEntity: Users::class, inversedBy: 'tasks')]
+    #[Groups(['task_read', 'task_users'])]
     private Collection $users;
+
+    #[ORM\ManyToOne(inversedBy: 'tasks')]
+    #[Groups(['task_read', 'task_team'])]
+    private ?Team $team = null;
 
     public function __construct()
     {
@@ -82,18 +91,6 @@ class Tasks
     public function setEndDate(?\DateTimeInterface $end_date): static
     {
         $this->end_date = $end_date;
-
-        return $this;
-    }
-
-    public function getLocation(): ?string
-    {
-        return $this->location;
-    }
-
-    public function setLocation(?string $location): static
-    {
-        $this->location = $location;
 
         return $this;
     }
@@ -142,6 +139,18 @@ class Tasks
     public function removeUser(Users $user): static
     {
         $this->users->removeElement($user);
+
+        return $this;
+    }
+
+    public function getTeam(): ?Team
+    {
+        return $this->team;
+    }
+
+    public function setTeam(?Team $team): static
+    {
+        $this->team = $team;
 
         return $this;
     }
