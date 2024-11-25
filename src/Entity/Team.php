@@ -17,7 +17,7 @@ class Team
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['task_team', 'task_read'])]
+    #[Groups(['task_team', 'task_read', 'user_read'])]
     private ?string $name = null;
 
     /**

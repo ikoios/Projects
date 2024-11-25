@@ -2,16 +2,18 @@
 
 namespace App\Controller;
 
+use App\Entity\Address;
 use App\Entity\Tasks;
+use App\Repository\AddressRepository;
 use App\Repository\TasksRepository;
+use App\Repository\TeamRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\Encoder\EncoderInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class TasksController extends AbstractController
@@ -50,65 +52,127 @@ class TasksController extends AbstractController
         }
     }
 
-    #[Route('/team/{id}', name: 'team_id', methods: ['GET'])]
-    public function getTasksTeam(TasksRepository $tasksRepository, SerializerInterface $serializer, $id): JsonResponse
+    // #[Route('/team/{id}', name: 'team_id', methods: ['GET'])]
+    // public function getTasksTeam(TasksRepository $tasksRepository, SerializerInterface $serializer, $id): JsonResponse
+    // {
+    //     try {
+    //         $tasks = $tasksRepository->findOneBy(['id' => $id]);
+
+    //         $json = $serializer->serialize($tasks, 'json', ['groups' => 'task_team']);
+
+    //         return new JsonResponse($json, 200, [], true);
+    //     } catch (\Exception $e) {
+    //         return $this->json([
+    //             'error' => "Une erreur s'est produite",
+    //             'message' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
+
+    #[Route('createTask', name: 'create_task', methods: ['POST'])]
+    public function createTask(EntityManagerInterface $manager, Request $request, AddressRepository $addressRepository, TeamRepository $teamRepository, SerializerInterface $serializer): Response
     {
-        try {
-            $tasks = $tasksRepository->findOneBy(['id' => $id]);
+        $data = $request->toArray();
 
-            $json = $serializer->serialize($tasks, 'json', ['groups' => 'task_team']);
-
-            return new JsonResponse($json, 200, [], true);
-        } catch (\Exception $e) {
-            return $this->json([
-                'error' => "Une erreur s'est produite",
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /*
-
-    j'attend un objet du type JSON : 
-
-    
-    {
-        "description": "faire un test",
-        "start_date": "2024-11-23T18:09:53+00:00",
-        "end_date": "2024-11-24T18:09:53+00:00",
-        "state": true,
-        "address": {
-            "way_number": 1,
-            "address_label": "rue du test",
-            "postal_code": 59000,
-            "city": "Lille",
-            "country": "France"
-         },
-    }
-
-
-    */
-    #[Route('createTasks', name: 'create_tasks', methods: ['POST'])]
-    public function createTasks(EntityManagerInterface $manager, Request $request, SerializerInterface $serializer): Response
-    {
-        $description = $request->query->get('description');
-        $sDate = $request->query->get('name');
-        $eDate = $request->query->get('name');
-        $addr = $request->query->get('name');
+        $startDate = $data["start_date"];
+        $endDate = $data["end_date"];
+        $startDateTime = new DateTime($startDate);
+        $endDateTime = new DateTime($endDate);
 
         $task = new Tasks();
+        $task->setDescription($data["description"])
+            ->setStartDate($startDateTime)
+            ->setEndDate($endDateTime);
 
-        $task->setDescription($request->query->get('description'));
-        dd($task->getDescription());
-        $task->setStartDate('data start date');
-        $task->setEndDate('data end Date');
-        // verification de ladresse si celle n'existe pas 
-        // si elle existe je ratache ladresse existante a la tache SINON je la creer 
-        $task->setAddress('data Adresse');
+        $existingAddress = $addressRepository->findOneBy($data["address"]);
+
+        if ($existingAddress) {
+            $task->setAddress($existingAddress);
+        } else {
+            $address = new Address;
+            $address->setWayNumber($data["address"]["way_number"])
+                ->setAddressLabel($data["address"]["address_label"])
+                ->setPostalCode($data["address"]["postal_code"])
+                ->setCity($data["address"]["city"])
+                ->setCountry($data["address"]["country"]);
+            $task->setAddress($address);
+        };
+
+        $team = $teamRepository->findOneBy(['id' => $data["team"]["id"]]);
+
+        if ($team) {
+            $task->setTeam($team);
+        };
+
         $manager->persist($task);
         $manager->flush();
 
+        $json = $serializer->serialize($task, 'json', ['groups' => 'task_read']);
+        return new JsonResponse($json, 201, [], true);
+    }
 
-        return '';
+    #[Route('updateTask/{id}', name: 'update_task', methods: ['PUT'])]
+    public function updateTask(TasksRepository $tasksRepository, AddressRepository $addressRepository, Request $request, EntityManagerInterface $manager, SerializerInterface $serializer, $id): Response
+    {
+        $task = $tasksRepository->find($id);
+
+        $data = $request->toArray();
+
+        $startDate = $data["start_date"];
+        $endDate = $data["end_date"];
+        $startDateTime = new DateTime($startDate);
+        $endDateTime = new DateTime($endDate);
+
+        $task->setDescription($data["description"])
+            ->setStartDate($startDateTime)
+            ->setEndDate($endDateTime);
+
+        $existingAddress = $addressRepository->findOneBy($data["address"]);
+
+        $address = $task->getAddress();
+
+        if ($existingAddress) {
+            $task->setAddress($existingAddress);
+        } else {
+            $address->setWayNumber($data["address"]["way_number"])
+                ->setAddressLabel($data["address"]["address_label"])
+                ->setPostalCode($data["address"]["postal_code"])
+                ->setCity($data["address"]["city"])
+                ->setCountry($data["address"]["country"]);
+            $task->setAddress($address);
+        };
+
+        $manager->persist($task);
+        $manager->flush();
+
+        $json = $serializer->serialize($task, 'json', ['groups' => 'task_read']);
+        return new JsonResponse($json, 201, [], true);
+    }
+
+    #[Route('deleteTask/{id}', name: 'delete_task', methods: ['DELETE'])]
+    public function deleteTask(TasksRepository $tasksRepository, EntityManagerInterface $manager, $id, SerializerInterface $serializer)
+    {
+        $task = $tasksRepository->find($id);
+
+        $interval = $task->getEndDate()->diff(new DateTime());
+
+        if ($interval->days >= 60) {
+            $manager->remove($task);
+            $manager->flush();
+            $task = null;
+        } else {
+            $task->setState(false);
+            $manager->persist($task);
+            $manager->flush();
+        }
+
+        if ($task) {
+            $json = $serializer->serialize($task, 'json', ['groups' => 'task_read']);
+            $response = new JsonResponse($json , 200, [], true);
+        } else {
+            $response = new JsonResponse(['status' => 'deleted'], 200, [],  false);
+        }
+
+        return $response;
     }
 }

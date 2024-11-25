@@ -18,23 +18,23 @@ class Address
     private ?int $id = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['task_read'])]
+    #[Groups(['task_read', 'user_read'])]
     private ?int $way_number = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['task_read'])]
+    #[Groups(['task_read', 'user_read'])]
     private ?string $address_label = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['task_read'])]
+    #[Groups(['task_read', 'user_read'])]
     private ?int $postal_code = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['task_read'])]
+    #[Groups(['task_read', 'user_read'])]
     private ?string $city = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['task_read'])]
+    #[Groups(['task_read', 'user_read'])]
     private ?string $country = null;
 
     /**

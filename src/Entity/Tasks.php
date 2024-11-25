@@ -19,23 +19,23 @@ class Tasks
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['task_read'])]
+    #[Groups(['task_read', 'user_read'])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Groups(['task_read'])]
+    #[Groups(['task_read', 'user_read'])]
     private ?\DateTimeInterface $start_date = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Groups(['task_read'])]
+    #[Groups(['task_read', 'user_read'])]
     private ?\DateTimeInterface $end_date = null;
 
     #[ORM\Column(nullable: true)]
     #[Groups(['task_read'])]
     private ?bool $state = null;
 
-    #[ORM\ManyToOne(inversedBy: 'tasks')]
-    #[Groups(['task_read'])]
+    #[ORM\ManyToOne(inversedBy: 'tasks', cascade: ["persist"])]
+    #[Groups(['task_read', 'user_read'])]
     private ?Address $address = null;
 
     /**

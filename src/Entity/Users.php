@@ -17,19 +17,23 @@ class Users
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user_read'])]
     private ?string $first_name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user_read'])]
     private ?string $last_name = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['user_read'])]
     private ?int $phone = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user_read'])]
     private ?string $mail = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['task_read','task_users'])]
+    #[Groups(['task_read','task_users', 'user_read'])]
     private ?string $identifier = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -39,15 +43,18 @@ class Users
      * @var Collection<int, Tasks>
      */
     #[ORM\ManyToMany(targetEntity: Tasks::class, mappedBy: 'users')]
+    #[Groups(['user_read'])]
     private Collection $tasks;
 
     #[ORM\ManyToOne(inversedBy: 'users')]
+    #[Groups(['user_read'])]
     private ?Address $address = null;
 
     /**
      * @var Collection<int, Roles>
      */
     #[ORM\ManyToMany(targetEntity: Roles::class, mappedBy: 'user')]
+    #[Groups(['user_read'])]
     private Collection $roles;
 
     /**
@@ -60,6 +67,7 @@ class Users
      * @var Collection<int, Team>
      */
     #[ORM\ManyToMany(targetEntity: Team::class, mappedBy: 'users')]
+    #[Groups(['user_read'])]
     private Collection $team;
 
     public function __construct()
