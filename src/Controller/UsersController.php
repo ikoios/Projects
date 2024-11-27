@@ -33,7 +33,7 @@ class UsersController extends AbstractController
     }
 
     #[Route('/newUser', name: 'new_user', methods: ['POST'])]
-    public function createUser(Request $request, EntityManagerInterface $manager, UserPasswordHasherInterface $passwordHasher): JsonResponse
+    public function createUser(Request $request, EntityManagerInterface $manager, UserPasswordHasherInterface $passwordHasher, SerializerInterface $serializer): JsonResponse
     {
         try {
             $datas = $request->toArray();
@@ -44,7 +44,7 @@ class UsersController extends AbstractController
                 ->setPhone($datas['phone'])
                 ->setMail($datas['mail'])
                 ->setIdentifier($datas['identifier'])
-                ->setPassword($datas['passaword']);
+                ->setPassword($datas['password']);
 
             /**
              * Get the registered password and hash it
@@ -58,7 +58,9 @@ class UsersController extends AbstractController
             $manager->persist($user);
             $manager->flush();
 
-            return new JsonResponse($user, 201, [], true);
+            $json = $serializer->serialize($user, 'json', ['groups' => 'user_read']);
+
+            return new JsonResponse($json, 201, [], true);
         } catch (Exception $e) {
             return $this->json([
                 'error' => 'Une erreur s\'est produite',

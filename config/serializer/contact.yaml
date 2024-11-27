@@ -1,0 +1,7 @@
+App\Entity\ContactList:
+  attributes:
+    user:
+      groups: ["contact_read"]
+    addedAt:
+      context:
+        - normalizationContext: { datetime_format: "d-m-Y H:i" }

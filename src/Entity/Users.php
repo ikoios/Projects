@@ -272,15 +272,20 @@ class Users implements PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCreateAt(): ?\DateTimeImmutable
-    {
-        return $this->createAt;
-    }
+    // public function getCreateAt(): ?\DateTimeImmutable
+    // {
+    //     return $this->createAt;
+    // }
 
-    public function setCreateAt(?\DateTimeImmutable $createAt): static
-    {
-        $this->createAt = $createAt;
+    // public function setCreateAt(?\DateTimeImmutable $createAt): static
+    // {
+    //     $this->createAt = $createAt;
 
-        return $this;
+    //     return $this;
+    // }
+
+    #[ORM\PrePersist]
+    public function onPrepersis():void {
+        $this->createAt = new \DateTime();
     }
 }
