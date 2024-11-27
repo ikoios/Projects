@@ -19,7 +19,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 class TasksController extends AbstractController
 {
     #[Route('/tasks', name: 'app_tasks', methods: ['GET'])]
-    public function getAllDatasForAPI(TasksRepository $tasksRepository, SerializerInterface $serializer): JsonResponse
+    public function getAllDatassForAPI(TasksRepository $tasksRepository, SerializerInterface $serializer): JsonResponse
     {
         try {
             $tasks = $tasksRepository->findAll();
@@ -72,33 +72,33 @@ class TasksController extends AbstractController
     #[Route('createTask', name: 'create_task', methods: ['POST'])]
     public function createTask(EntityManagerInterface $manager, Request $request, AddressRepository $addressRepository, TeamRepository $teamRepository, SerializerInterface $serializer): Response
     {
-        $data = $request->toArray();
+        $datas = $request->toArray();
 
-        $startDate = $data["start_date"];
-        $endDate = $data["end_date"];
+        $startDate = $datas["start_date"];
+        $endDate = $datas["end_date"];
         $startDateTime = new DateTime($startDate);
         $endDateTime = new DateTime($endDate);
 
         $task = new Tasks();
-        $task->setDescription($data["description"])
+        $task->setDescription($datas["description"])
             ->setStartDate($startDateTime)
             ->setEndDate($endDateTime);
 
-        $existingAddress = $addressRepository->findOneBy($data["address"]);
+        $existingAddress = $addressRepository->findOneBy($datas["address"]);
 
         if ($existingAddress) {
             $task->setAddress($existingAddress);
         } else {
             $address = new Address;
-            $address->setWayNumber($data["address"]["way_number"])
-                ->setAddressLabel($data["address"]["address_label"])
-                ->setPostalCode($data["address"]["postal_code"])
-                ->setCity($data["address"]["city"])
-                ->setCountry($data["address"]["country"]);
+            $address->setWayNumber($datas["address"]["way_number"])
+                ->setAddressLabel($datas["address"]["address_label"])
+                ->setPostalCode($datas["address"]["postal_code"])
+                ->setCity($datas["address"]["city"])
+                ->setCountry($datas["address"]["country"]);
             $task->setAddress($address);
         };
 
-        $team = $teamRepository->findOneBy(['id' => $data["team"]["id"]]);
+        $team = $teamRepository->findOneBy(['id' => $datas["team"]["id"]]);
 
         if ($team) {
             $task->setTeam($team);
@@ -116,29 +116,29 @@ class TasksController extends AbstractController
     {
         $task = $tasksRepository->find($id);
 
-        $data = $request->toArray();
+        $datas = $request->toArray();
 
-        $startDate = $data["start_date"];
-        $endDate = $data["end_date"];
+        $startDate = $datas["start_date"];
+        $endDate = $datas["end_date"];
         $startDateTime = new DateTime($startDate);
         $endDateTime = new DateTime($endDate);
 
-        $task->setDescription($data["description"])
+        $task->setDescription($datas["description"])
             ->setStartDate($startDateTime)
             ->setEndDate($endDateTime);
 
-        $existingAddress = $addressRepository->findOneBy($data["address"]);
+        $existingAddress = $addressRepository->findOneBy($datas["address"]);
 
         $address = $task->getAddress();
 
         if ($existingAddress) {
             $task->setAddress($existingAddress);
         } else {
-            $address->setWayNumber($data["address"]["way_number"])
-                ->setAddressLabel($data["address"]["address_label"])
-                ->setPostalCode($data["address"]["postal_code"])
-                ->setCity($data["address"]["city"])
-                ->setCountry($data["address"]["country"]);
+            $address->setWayNumber($datas["address"]["way_number"])
+                ->setAddressLabel($datas["address"]["address_label"])
+                ->setPostalCode($datas["address"]["postal_code"])
+                ->setCity($datas["address"]["city"])
+                ->setCountry($datas["address"]["country"]);
             $task->setAddress($address);
         };
 

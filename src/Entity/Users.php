@@ -6,10 +6,11 @@ use App\Repository\UsersRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
-class Users
+class Users implements PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -33,7 +34,7 @@ class Users
     private ?string $mail = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['task_read','task_users', 'user_read'])]
+    #[Groups(['task_read', 'task_users', 'user_read', 'team_read'])]
     private ?string $identifier = null;
 
     #[ORM\Column(length: 255, nullable: true)]
