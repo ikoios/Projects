@@ -1,0 +1,12 @@
+App\Entity\Address:
+  attributes:
+    way_number:
+      groups: ['task_read', 'user_read']
+    address_label:
+      groups: ['task_read', 'user_read']
+    postal_code:
+      groups: ['task_read', 'user_read']
+    city:
+      groups: ['task_read', 'user_read']
+    country:
+      groups: ['task_read', 'user_read']

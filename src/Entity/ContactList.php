@@ -16,6 +16,9 @@ class ContactList
     #[ORM\ManyToOne(inversedBy: 'contactLists')]
     private ?Users $user = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $addedAt = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -29,6 +32,18 @@ class ContactList
     public function setUser(?Users $user): static
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getAddedAt(): ?\DateTimeImmutable
+    {
+        return $this->addedAt;
+    }
+
+    public function setAddedAt(?\DateTimeImmutable $addedAt): static
+    {
+        $this->addedAt = $addedAt;
 
         return $this;
     }

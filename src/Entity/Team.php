@@ -17,14 +17,12 @@ class Team
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['task_team', 'task_read', 'user_read', 'team_read'])]
     private ?string $name = null;
 
     /**
      * @var Collection<int, Users>
      */
     #[ORM\ManyToMany(targetEntity: Users::class, inversedBy: 'team')]
-    #[Groups(['team_read'])]
     private Collection $users;
 
     /**

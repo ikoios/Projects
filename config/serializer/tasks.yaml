@@ -1,0 +1,22 @@
+App\Entity\Tasks:
+  attributes:
+    id:
+      groups: ["task_read", "task_users"]
+    description:
+      groups: ["task_read", "user_read"]
+    start_date:
+      groups: ["task_read", "user_read"]
+      contexts:
+        - normalizationContext: { datetime_format: "d-m-Y H:i" }
+    end_date:
+      groups: ["task_read", "user_read"]
+      contexts:
+        - normalizationContext: { datetime_format: "d-m-Y H:i" }
+    state:
+      groups: ["task_read"]
+    address:
+      groups: ["task_read", "user_read"]
+    users:
+      groups: ["task_read", "task_users"]
+    team:
+      groups: ["task_read", "task_team"]

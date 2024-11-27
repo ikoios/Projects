@@ -1,0 +1,6 @@
+App\Entity\Team:
+  attributes:
+    name:
+      groups: ["task_team", "task_read", "user_read", "team_read"]
+    users:
+      groups: ["team_read"]

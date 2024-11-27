@@ -7,7 +7,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: TasksRepository::class)]
 class Tasks
@@ -15,38 +14,30 @@ class Tasks
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['task_read', 'task_users'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['task_read', 'user_read'])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Groups(['task_read', 'user_read'])]
     private ?\DateTimeInterface $start_date = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Groups(['task_read', 'user_read'])]
     private ?\DateTimeInterface $end_date = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['task_read'])]
     private ?bool $state = null;
 
     #[ORM\ManyToOne(inversedBy: 'tasks', cascade: ["persist"])]
-    #[Groups(['task_read', 'user_read'])]
     private ?Address $address = null;
 
     /**
      * @var Collection<int, Users>
      */
     #[ORM\ManyToMany(targetEntity: Users::class, inversedBy: 'tasks')]
-    #[Groups(['task_read', 'task_users'])]
     private Collection $users;
 
     #[ORM\ManyToOne(inversedBy: 'tasks')]
-    #[Groups(['task_read', 'task_team'])]
     private ?Team $team = null;
 
     public function __construct()

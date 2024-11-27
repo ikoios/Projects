@@ -1,0 +1,23 @@
+App\Entity\Users:
+  attributes:
+    first_name:
+      groups: ["user_read"]
+    last_name:
+      groups: ["user_read"]
+    phone:
+      groups: ["user_read"]
+    mail:
+      groups: ["user_read"]
+    identifier:
+      groups: ["task_read", "task_users", "user_read", "team_read"]
+    tasks:
+      groups: ["user_read"]
+    address:
+      groups: ["user_read"]
+    roles:
+      groups: [user_read]
+    team:
+      groups: ["user_read"]
+    createAt:
+      contexts:
+        - normalizationContext: { datetime_format: "d-m-Y H:i" }

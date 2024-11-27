@@ -7,7 +7,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
 class Users implements PasswordAuthenticatedUserInterface
@@ -18,23 +17,18 @@ class Users implements PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user_read'])]
     private ?string $first_name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user_read'])]
     private ?string $last_name = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['user_read'])]
     private ?int $phone = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user_read'])]
     private ?string $mail = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['task_read', 'task_users', 'user_read', 'team_read'])]
     private ?string $identifier = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -44,18 +38,15 @@ class Users implements PasswordAuthenticatedUserInterface
      * @var Collection<int, Tasks>
      */
     #[ORM\ManyToMany(targetEntity: Tasks::class, mappedBy: 'users')]
-    #[Groups(['user_read'])]
     private Collection $tasks;
 
     #[ORM\ManyToOne(inversedBy: 'users')]
-    #[Groups(['user_read'])]
     private ?Address $address = null;
 
     /**
      * @var Collection<int, Roles>
      */
     #[ORM\ManyToMany(targetEntity: Roles::class, mappedBy: 'user')]
-    #[Groups(['user_read'])]
     private Collection $roles;
 
     /**
@@ -68,8 +59,10 @@ class Users implements PasswordAuthenticatedUserInterface
      * @var Collection<int, Team>
      */
     #[ORM\ManyToMany(targetEntity: Team::class, mappedBy: 'users')]
-    #[Groups(['user_read'])]
     private Collection $team;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $createAt = null;
 
     public function __construct()
     {
@@ -275,6 +268,18 @@ class Users implements PasswordAuthenticatedUserInterface
         if ($this->team->removeElement($team)) {
             $team->removeUser($this);
         }
+
+        return $this;
+    }
+
+    public function getCreateAt(): ?\DateTimeImmutable
+    {
+        return $this->createAt;
+    }
+
+    public function setCreateAt(?\DateTimeImmutable $createAt): static
+    {
+        $this->createAt = $createAt;
 
         return $this;
     }

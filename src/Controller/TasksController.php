@@ -77,7 +77,9 @@ class TasksController extends AbstractController
         $startDate = $datas["start_date"];
         $endDate = $datas["end_date"];
         $startDateTime = new DateTime($startDate);
+        date_format($startDate, 'd-m-Y H:i:s');
         $endDateTime = new DateTime($endDate);
+        date_format($endDate, 'd-m-Y H:i:s');
 
         $task = new Tasks();
         $task->setDescription($datas["description"])
@@ -121,7 +123,9 @@ class TasksController extends AbstractController
         $startDate = $datas["start_date"];
         $endDate = $datas["end_date"];
         $startDateTime = new DateTime($startDate);
+        date_format($startDate, 'd-m-Y H:i:s');
         $endDateTime = new DateTime($endDate);
+        date_format($endDate, 'd-m-Y H:i:s');
 
         $task->setDescription($datas["description"])
             ->setStartDate($startDateTime)
@@ -168,7 +172,7 @@ class TasksController extends AbstractController
 
         if ($task) {
             $json = $serializer->serialize($task, 'json', ['groups' => 'task_read']);
-            $response = new JsonResponse($json , 200, [], true);
+            $response = new JsonResponse($json, 200, [], true);
         } else {
             $response = new JsonResponse(['status' => 'deleted'], 200, [],  false);
         }

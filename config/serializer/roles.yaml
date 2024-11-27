@@ -1,0 +1,4 @@
+App\Entity\Roles:
+  attributes:
+    role_type:
+      groups: ['user_read']
