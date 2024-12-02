@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\UsersRepository;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -70,6 +71,7 @@ class Users implements PasswordAuthenticatedUserInterface
         $this->roles = new ArrayCollection();
         $this->contactLists = new ArrayCollection();
         $this->team = new ArrayCollection();
+        $this->createAt = new DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -272,20 +274,15 @@ class Users implements PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    // public function getCreateAt(): ?\DateTimeImmutable
-    // {
-    //     return $this->createAt;
-    // }
+    public function getCreateAt(): ?\DateTimeImmutable
+    {
+        return $this->createAt;
+    }
 
-    // public function setCreateAt(?\DateTimeImmutable $createAt): static
-    // {
-    //     $this->createAt = $createAt;
+    public function setCreateAt(?\DateTimeImmutable $createAt): static
+    {
+        $this->createAt = $createAt;
 
-    //     return $this;
-    // }
-
-    #[ORM\PrePersist]
-    public function onPrepersis():void {
-        $this->createAt = new \DateTime();
+        return $this;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Users;
+use App\Repository\AddressRepository;
 use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class UsersController extends AbstractController
@@ -24,7 +26,24 @@ class UsersController extends AbstractController
             $json = $serializer->serialize($users, 'json', ['groups' => 'user_read']);
 
             return new JsonResponse($json, 200, [], true);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
+            return $this->json([
+                'error' => 'Une erreur s\'est produite',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    #[Route('/users/{id}', name: 'get_user', methods: ['GET'])]
+    public function currentUser(UsersRepository $usersRepository, SerializerInterface $serializer, $id): JsonResponse
+    {
+        try {
+            $user = $usersRepository->find($id);
+
+            $json = $serializer->serialize($user, 'json', ['groups' => 'user_read']);
+
+            return new JsonResponse($json, 200, [], true);
+        } catch (Exception $e) {
             return $this->json([
                 'error' => 'Une erreur s\'est produite',
                 'message' => $e->getMessage(),
@@ -37,6 +56,8 @@ class UsersController extends AbstractController
     {
         try {
             $datas = $request->toArray();
+            // dd($request);
+
 
             $user = new Users;
             $user->setFirstName($datas['first_name'])
